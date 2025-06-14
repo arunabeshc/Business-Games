@@ -45,3 +45,5 @@ feedparser
 selenium
 webdriver-manager
 typing-extensions
+unstructured
+python-docx
