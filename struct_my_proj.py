@@ -1,11 +1,14 @@
 # imports
 
 import gradio as gr
-from classes import log_formatter
-from agents import frontier_agent
+from agents.log_formatter_agent import LogFormatterAgent
+from agents.frontier_agent import FrontierAgent
 
-lf=log_formatter()
-fa=frontier_agent()
+lf=LogFormatterAgent()
+
+lf.init_logging()
+
+fa=FrontierAgent()
 
 def get_html_logs():
     lf.html_log_stream.seek(0)
@@ -17,8 +20,6 @@ def clear_logs():
     lf.html_log_stream.truncate(0)
     lf.html_log_stream.seek(0)
     return None, ""
-
-lf.init_logging()
 
 def chat(history,Model):
     if Model=="Open AI":
@@ -56,12 +57,12 @@ with gr.Blocks(css="""
         clear = gr.Button("Clear")
 
 
-    timer = gr.Timer(value=5, active=True)
+    timer = gr.Timer(value=2, active=True)
     timer.tick(get_html_logs, inputs=None, outputs=[logs_box])
 
     def do_entry(message, history):
         history += [{"role":"user", "content":message}]
-        lf.logging.info(f"User message: {message}")
+        lf.logger.info(f"User message: {message}")
         yield "", history, get_html_logs()
         
     def set_initial_prompt():
@@ -74,3 +75,5 @@ with gr.Blocks(css="""
     )
     
     clear.click(clear_logs, inputs=None, outputs=[chatbot, logs_box], queue=False)
+
+    ui.launch(inbrowser=True)
