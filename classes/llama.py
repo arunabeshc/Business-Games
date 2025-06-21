@@ -6,7 +6,7 @@ from modal import App, Volume, Image
 app = modal.App("llama_3.1")
 image = Image.debian_slim().pip_install("torch", "transformers", "bitsandbytes", "accelerate")
 secrets = [modal.Secret.from_name("hf-secret")]
-GPU = "T4"
+GPU = "A100"
 MODEL_NAME = "meta-llama/Meta-Llama-3.1-8B" 
 
 
@@ -36,5 +36,5 @@ def generate(prompt: str) -> str:
     set_seed(42)
     inputs = tokenizer.encode(prompt, return_tensors="pt").to("cuda")
     attention_mask = torch.ones(inputs.shape, device="cuda")
-    outputs = model.generate(inputs, attention_mask=attention_mask, max_new_tokens=2000, num_return_sequences=1)
+    outputs = model.generate(inputs, attention_mask=attention_mask, max_new_tokens=5000, num_return_sequences=1)
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
