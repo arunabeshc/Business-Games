@@ -1,14 +1,16 @@
 # imports
-
 import gradio as gr
 from agents.log_formatter_agent import LogFormatterAgent
 from agents.frontier_agent import FrontierAgent
+from agents.open_source_agent import OpenSourceAgent
+from agents.RAG_agent import RAGAgent
 
 lf=LogFormatterAgent()
-
 lf.init_logging()
 
-fa=FrontierAgent()
+ra=RAGAgent()
+fa=FrontierAgent(ra)
+oa=OpenSourceAgent(ra)
 
 def get_html_logs():
     lf.html_log_stream.seek(0)
@@ -22,8 +24,10 @@ def clear_logs():
     return None, ""
 
 def chat(history,Model):
-    if Model=="Open AI":
+    if Model=="Open AI (gpt-4o-mini)":
         history = fa.chat_open_ai(history)
+    elif Model=="Open Source (HuggingFace Llama-3.1)":
+        history = oa.chat_llama(history)
     return history
     
 initial_prompt = """👋 Hello! How can I assist you today? If you're looking to set up a new data engineering project, please provide me with details about the source systems, the number of target data marts, and a brief outline of the overall architecture."""
@@ -46,8 +50,7 @@ with gr.Blocks(css="""
             
             logs_box = gr.HTML(label="Logs", elem_id="log_box")
     with gr.Row():
-        Model = gr.Dropdown(["Open AI","XX"],
-                              # value=["Open AI","Claude"],
+        Model = gr.Dropdown(["Open AI (gpt-4o-mini)","Open Source (HuggingFace Llama-3.1)"],
                               multiselect=False,
                               label="Model",
                               interactive=True)

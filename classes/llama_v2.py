@@ -76,4 +76,4 @@ def generate(prompt: str) -> str:
         if stop_word in response:
             response = response.split(stop_word)[0]
 
-    return(f"assistant:{response.strip()}")
+    return(response.strip())

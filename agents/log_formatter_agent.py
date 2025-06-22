@@ -15,13 +15,17 @@ class LogFormatterAgent:
         AGENT_COLORS = {
             "FrontierAgent": "blue",
             "LogFormatterAgent": "darkorange",
+            "OpenSourceAgent": "#d97706",
+            "RAGAgent": "#6b21a8",  # deep purple
             "Default": "black"
         }
 
         AGENT_BACKGROUNDS = {
-            "FrontierAgent": "#eef5ff",        # light blue
-            "LogFormatterAgent": "#fff8e1",    # light yellow
-            "Default": "#f4f4f4"               # light grey
+            "FrontierAgent": "#eef5ff",
+            "LogFormatterAgent": "#fff8e1",
+            "OpenSourceAgent": "#fff7ed",
+            "RAGAgent": "#f3e8ff",  # soft lilac
+            "Default": "#f4f4f4"
         }
 
         def format(self, record):

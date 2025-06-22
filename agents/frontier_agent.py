@@ -1,42 +1,21 @@
 # imports
 import os
-import chromadb
 from openai import OpenAI
 from dotenv import load_dotenv
-import chromadb
 import json
 import logging
-from classes import embeddings
 
 class FrontierAgent:
 
-    def __init__(self):
+    def __init__(self,ra):
         
         self.logger = logging.getLogger("FrontierAgent")
-        # Initialize ChromaDB client
-        DB_PATH = "agile_process"
-        client = chromadb.PersistentClient(path=DB_PATH)
-
-        # Initialize embeddings
-        self.embeddings_model = embeddings.SentenceTransformerEmbeddings('sentence-transformers/all-MiniLM-L6-v2')
-        collection_name = "process_docs"
-        self.collection = client.get_collection(name=collection_name)
         load_dotenv(override=True)
         os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY', 'your-key-if-not-using-env')
         self.gpt_model = "gpt-4o-mini"
+        self.ra=ra
+        self.n_results=10
         self.logger.info("Frontier Agent is ready")
-
-    # Example: Query the collection
-    def query_documents(self, query_text, n_results=10):
-        """Query the document collection."""
-        query_embedding = self.embeddings_model.embed_query(query_text)
-        
-        results = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=n_results,
-            include=["documents", "metadatas", "distances"]
-        )
-        return results
 
     system_message = """You devise the strategy on how to set up and start a new data engineering project from scratch. You ask the user
         to share details about source systems, the number of final data marts, and a brief outline of the overall architecture. Do not proceed 
@@ -45,8 +24,6 @@ class FrontierAgent:
         adhere to the agile process details that the tool call returns. You will eventually display the epics, features, and user stories 
         needed to achieve the end objective, which is to create the final data marts. Always provide epic, feature, and story details and 
         include points for each story along with the output. Give as detailed output as possible."""
-
-
 
     return_context_function = {
         "name": "return_context",
@@ -82,21 +59,10 @@ class FrontierAgent:
         source = args.get('details_source_systems')
         architecture = args.get('overall_architecture')
         marts = args.get('target_data_marts')
-        if name.replace('"','') == "return_context":
-            context=self.return_context(self.collection, f"Source details -\n{source}\n\nArchitecture Details -\n{architecture}\n\nMart Details -\n{marts}")
         self.logger.info("Frontier Agent is handling a Tool Call")
-        return context
-
-    def return_context(self,collection, user_query):
-        context = "\n\nProviding some context from relevant information -\n\n"
-        retrieved = collection.query(
-            query_embeddings=[self.embeddings_model.embed_query(user_query)],
-            n_results=10,  # e.g., 5 or 10
-            include=["documents", "metadatas"]
-        )
-        retrieved_chunks = retrieved["documents"][0]
-        context+= "\n\n".join(retrieved_chunks)
-        self.logger.info(f"Frontier Agent is providing context to the Frontier LLM ({self.gpt_model})")
+        if name.replace('"','') == "return_context":
+            self.logger.info("Frontier Agent is getting context from RAG agent")
+            context=self.ra.return_context(self.ra.collection, f"Source details -\n{source}\n\nArchitecture Details -\n{architecture}\n\nMart Details -\n{marts}", self.n_results)
         return context
 
     def chat_open_ai(self, history):
