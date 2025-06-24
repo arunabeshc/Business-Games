@@ -44,20 +44,20 @@ with gr.Blocks(css="""
     }
 """) as ui:
     with gr.Row():
+        with gr.Column(scale=2):
+            chatbot = gr.Chatbot(height=565, type="messages")
         with gr.Column(scale=1):
-            chatbot = gr.Chatbot(height=300, type="messages")
-        with gr.Column(scale=1):
-            
-            logs_box = gr.HTML(label="Logs", elem_id="log_box")
-    with gr.Row():
-        Model = gr.Dropdown(["Open AI (gpt-4o-mini)","Open Source (HuggingFace Llama-3.1)"],
-                              multiselect=False,
-                              label="Model",
-                              interactive=True)
-    with gr.Row():
-        entry = gr.Textbox(label="Chat with our AI Assistant:")
-    with gr.Row():
-        clear = gr.Button("Clear")
+            with gr.Row():
+                logs_box = gr.HTML(label="Logs", elem_id="log_box")
+            with gr.Row():
+                Model = gr.Dropdown(["Open AI (gpt-4o-mini)","Open Source (HuggingFace Llama-3.1)"],
+                                    multiselect=False,
+                                    label="Model",
+                                    interactive=True)
+            with gr.Row():
+                entry = gr.Textbox(label="Chat with our AI Assistant:")
+            with gr.Row():
+                clear = gr.Button("Clear")
 
 
     timer = gr.Timer(value=2, active=True)
@@ -79,4 +79,5 @@ with gr.Blocks(css="""
     
     clear.click(clear_logs, inputs=None, outputs=[chatbot, logs_box], queue=False)
 
-    ui.launch(inbrowser=True)
+if __name__ == "__main__":
+    ui.launch()

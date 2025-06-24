@@ -14,7 +14,7 @@ class RAGAgent:
         client = chromadb.PersistentClient(path=DB_PATH)
 
         # Initialize embeddings
-        self.embeddings_model = embeddings.SentenceTransformerEmbeddings('sentence-transformers/all-MiniLM-L6-v2')
+        self.embeddings_model = embeddings.SentenceTransformerEmbeddings('models/all-MiniLM-L6-v2')
         collection_name = "process_docs"
         self.collection = client.get_collection(name=collection_name)
         load_dotenv(override=True)
